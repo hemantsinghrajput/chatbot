@@ -14,8 +14,8 @@ import random
 #load the api keys from the the .env file
 load_dotenv()
 #
-hugging_face = os.getenv('hugging_face')
-open_ai_key = os.getenv('open_ai_key')
+hugging_face = os.getenv('HF_API')
+open_ai_key = os.getenv('OAPI')
 #
 openai.api_key = open_ai_key
 

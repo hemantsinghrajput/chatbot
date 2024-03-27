@@ -1,11 +1,12 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>Agri Chatbot</title>
     <link rel="icon" type="image/x-icon" href="static/images/favicon.ico">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="This is an Agriculture chatbot that helps farmers to make write desitions." />
-    <link rel="icon" type="image/png" href="static/images/favicon.ico"/>
+    <link rel="icon" type="image/png" href="static/images/favicon.ico" />
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
     <!-- Option 1: Include in HTML -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css">
@@ -26,9 +27,10 @@
         }
     </style>
 </head>
+
 <body>
     <div class="container">
-        <h1>Krissi Help Chatbot</h1>
+        <h1>Agriculture Chatbot</h1>
         <p>Disclaimer:please have patience this might take some time</p>
         <div class="row chat-container" id="chat-container"></div>
         <div class="row">
@@ -41,7 +43,7 @@
                 <button class="btn btn-primary btn-block" id="send-btn">Send</button>
             </div>
         </div>
-        
+
         <div class="row">
             <div class="col-xs-12">
                 <button class="btn btn-primary btn-block" id="record-btn">Record</button>
@@ -55,27 +57,28 @@
         </div>
         <footer class="footer">
             <div class="footer-links">
-                <h2> Made by Mohammed Ashraf
-                <a href="https://www.linkedin.com/in/mohammed97ashraf" target="_blank"><i class="bi bi-linkedin"></i></a>
-                <a href="https://github.com/mohammed97ashraf" target="_blank"><i class="bi bi-github"></i></a></h2>
+                <h2> Made by Hemant Rajput
+                    <a href="https://www.linkedin.com/in/hemantsinghrajput" target="_blank"><i
+                            class="bi bi-linkedin"></i></a>
+                    <a href="https://github.com/hemantsinghrajput" target="_blank"><i class="bi bi-github"></i></a>
+                </h2>
             </div>
         </footer>
     </div>
 
-    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
     <script>
-        $(document).ready(function() {
-            $('#send-btn').on('click', function() {
+        document.addEventListener('DOMContentLoaded', function () {
+            document.getElementById('send-btn').addEventListener('click', function () {
                 sendMessage();
             });
 
-            $('#user-input').on('keypress', function(e) {
+            document.getElementById('user-input').addEventListener('keypress', function (e) {
                 if (e.which === 13) {
                     sendMessage();
                 }
             });
 
-            $('#record-btn').on('click', function() {
+            document.getElementById('record-btn').addEventListener('click', function () {
                 toggleRecording();
             });
 
@@ -85,43 +88,41 @@
             function toggleRecording() {
                 if (recording) {
                     stopRecording();
-                    $('#record-btn').text('Record');
+                    document.getElementById('record-btn').textContent = 'Record';
                 } else {
                     startRecording();
-                    $('#record-btn').text('Stop Recording');
+                    document.getElementById('record-btn').textContent = 'Stop Recording';
                 }
                 recording = !recording;
             }
 
-            
             function startRecording() {
                 if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
                     navigator.mediaDevices.getUserMedia({ audio: true })
-                        .then(function(stream) {
+                        .then(function (stream) {
                             recorder = new MediaRecorder(stream);
                             var chunks = [];
-            
-                            recorder.addEventListener('dataavailable', function(e) {
+
+                            recorder.addEventListener('dataavailable', function (e) {
                                 chunks.push(e.data);
                             });
-            
-                            recorder.addEventListener('stop', function() {
+
+                            recorder.addEventListener('stop', function () {
                                 var audioBlob = new Blob(chunks, { type: 'audio/webm' });
                                 var formData = new FormData();
                                 formData.append('audio', audioBlob, 'audio.webm');
                                 sendAudio(formData);
                             });
-            
+
                             recorder.start();
                         })
-                        .catch(function(err) {
+                        .catch(function (err) {
                             console.error('Error accessing microphone:', err);
                         });
                 } else {
                     console.error('getUserMedia is not supported in this browser.');
                 }
             }
-
 
             function stopRecording() {
                 if (recorder) {
@@ -130,48 +131,60 @@
             }
 
             function sendAudio(formData) {
-                $('#chat-container').append('<div class="col-xs-12"><p class="loading-message">Uploading audio...</p></div>');
-                scrollToBottom();
+                document.getElementById('chat-container').insertAdjacentHTML('beforeend', '<div class="col-xs-12"><p class="loading-message">Uploading audio...</p></div>');
 
-                $.ajax({
-                    url: '/chat',
-                    type: 'POST',
-                    data: formData,
-                    contentType: false,
-                    processData: false,
-                    success: function(response) {
-                        $('#chat-container .loading-message:last').remove();
-
-                        var transcription = response.text;
-                        $('#user-input').val(transcription);
+                fetch('/chat', {
+                    method: 'POST',
+                    body: formData
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        var loadingMessage = document.querySelector('.loading-message');
+                        if (loadingMessage) {
+                            loadingMessage.parentNode.removeChild(loadingMessage);
+                        }
+                        var transcription = data.text;
+                        document.getElementById('user-input').value = transcription;
                         sendMessage();
-                    },
-                    error: function(xhr, status, error) {
+                    })
+                    .catch(error => {
                         console.error('Error uploading audio:', error);
-                    }
-                });
+                    });
             }
 
             function sendMessage() {
-                var userInput = $('#user-input').val();
+                var userInput = document.getElementById('user-input').value;
                 if (userInput.trim() !== '') {
-                    $('#user-input').val('');
-                    $('#chat-container').append('<div class="col-xs-12 text-right"><p class="alert alert-info">' + userInput + '</p></div>');
+                    document.getElementById('user-input').value = '';
+                    document.getElementById('chat-container').insertAdjacentHTML('beforeend', '<div class="col-xs-12 text-right"><p class="alert alert-info">' + userInput + '</p></div>');
                     scrollToBottom();
 
-                    $('#chat-container').append('<div class="col-xs-12"><p class="loading-message">Bot is typing...</p></div>');
+                    document.getElementById('chat-container').insertAdjacentHTML('beforeend', '<div class="col-xs-12"><p class="loading-message">Bot is typing...</p></div>');
                     scrollToBottom();
 
-                    $.post('/chat', {text: userInput}, function(response) {
-                        $('#chat-container .loading-message:last').remove();
+                    fetch('/chat', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ text: userInput })
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            var loadingMessage = document.querySelector('.loading-message');
+                            if (loadingMessage) {
+                                loadingMessage.parentNode.removeChild(loadingMessage);
+                            }
+                            document.getElementById('chat-container').insertAdjacentHTML('beforeend', '<div class="col-xs-12 text-left"><p class="alert alert-success">' + data.text + '</p></div>');
+                            scrollToBottom();
 
-                        $('#chat-container').append('<div class="col-xs-12 text-left"><p class="alert alert-success">' + response.text + '</p></div>');
-                        scrollToBottom();
-
-                        setVoice(response.voice);
-                        playNotificationSound();
-                        showNotification(response.text);
-                    });
+                            setVoice(data.voice);
+                            playNotificationSound();
+                            showNotification(data.text);
+                        })
+                        .catch(error => {
+                            console.error('Error sending message:', error);
+                        });
                 }
             }
 
@@ -184,7 +197,7 @@
             }
 
             function playNotificationSound() {
-                var audio = new Audio('{{ url_for('static', filename='audio/sound.mp3') }}');
+                var audio = new Audio('/static/audio/sound.mp3');
                 audio.play();
             }
 
@@ -192,14 +205,14 @@
                 if (Notification.permission === "granted") {
                     var notification = new Notification("New Message", {
                         body: message,
-                        icon: "{{ url_for('static', filename='img/notification-icon.png') }}"
+                        icon: "/static/img/notification-icon.png"
                     });
                 } else if (Notification.permission !== "denied") {
-                    Notification.requestPermission().then(function(permission) {
+                    Notification.requestPermission().then(function (permission) {
                         if (permission === "granted") {
                             var notification = new Notification("New Message", {
                                 body: message,
-                                icon: "{{ url_for('static', filename='img/notification-icon.png') }}"
+                                icon: "/static/img/notification-icon.png"
                             });
                         }
                     });
@@ -207,10 +220,12 @@
             }
 
             function scrollToBottom() {
-                $('#chat-container').scrollTop($('#chat-container')[0].scrollHeight);
+                var chatContainer = document.getElementById('chat-container');
+                chatContainer.scrollTop = chatContainer.scrollHeight;
             }
         });
     </script>
-    
+
 </body>
+
 </html>
