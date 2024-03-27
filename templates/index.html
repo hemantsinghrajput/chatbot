@@ -205,14 +205,14 @@
                 if (Notification.permission === "granted") {
                     var notification = new Notification("New Message", {
                         body: message,
-                        icon: "/static/img/notification-icon.png"
+                        icon: "./static/img/notification-icon.png"
                     });
                 } else if (Notification.permission !== "denied") {
                     Notification.requestPermission().then(function (permission) {
                         if (permission === "granted") {
                             var notification = new Notification("New Message", {
                                 body: message,
-                                icon: "/static/img/notification-icon.png"
+                                icon: "./static/img/notification-icon.png"
                             });
                         }
                     });
